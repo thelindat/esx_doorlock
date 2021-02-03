@@ -78,7 +78,7 @@ end)
 
 function playSound(door, src)
 	local origin
-	if src then src = NetworkGetEntityFromNetworkId(src) end
+	if src and src ~= playerPed then src = NetworkGetEntityFromNetworkId(src) end
 	if not src then origin = door.textCoords elseif src == playerPed then origin = playerCoords else origin = NetworkGetPlayerCoords(src) end
 	local distance = #(playerCoords - origin)
 	--print(origin)
@@ -316,7 +316,8 @@ RegisterCommand('doorlock', function()
 		if not IsPedInAnyVehicle(playerPed) then dooranim(closestV.object, closestV.locked) end
 		closestV.locked = not closestV.locked
 		--debug(closestDoor, closestV)
-		TriggerServerEvent('esx_doorlock:updateState', closestDoor, closestV.locked, closestV.audioRemote) -- Broadcast new state of the door to everyone
+		if closestV.audioRemote then src = NetworkGetNetworkIdFromEntity(playerPed) else src = nil end
+		TriggerServerEvent('esx_doorlock:updateState', closestDoor, closestV.locked, src) -- Broadcast new state of the door to everyone
 	end
 end)
 RegisterKeyMapping('doorlock', 'Interact with a door lock', 'keyboard', 'e')
