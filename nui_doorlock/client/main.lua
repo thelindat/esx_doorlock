@@ -77,10 +77,11 @@ AddEventHandler('esx_doorlock:setState', function(doorID, locked, src)
 end)
 
 function playSound(door, src)
+	local origin
 	if src then src = NetworkGetEntityFromNetworkId(src) end
 	if not src then origin = door.textCoords elseif src == playerPed then origin = playerCoords else origin = NetworkGetPlayerCoords(src) end
 	local distance = #(playerCoords - origin)
-	print(origin)
+	--print(origin)
 	if distance < 10 then
 		if not door.audioLock then
 			if door.audioRemote then
@@ -218,6 +219,7 @@ function updateDoors()
 				end
 			end
 		end
+	debug(doorID, data)
 	end
 	doorCount = DoorSystemGetSize()
 	if doorCount ~= 0 then print(('%s doors are loaded'):format(doorCount)) end
@@ -245,8 +247,8 @@ Citizen.CreateThread(function()
 			local distance
 			for k,v in ipairs(Config.DoorList) do
 				if v.setText and (v.object or (v.doors and v.doors[1].object)) then
-					distance = #(v.textCoords - playerCoords)
-					if v.setText and distance < (v.maxDistance * 2) then
+					distance = #(vector2(v.textCoords.x, v.textCoords.y) - vector2(playerCoords.x, playerCoords.y))
+					if v.setText and distance < v.maxDistance then
 						closestDoor, closestV, closestDistance = k, v, distance
 					end
 				end
@@ -261,9 +263,9 @@ Citizen.CreateThread(function()
 		Citizen.Wait(0)
 		playerPed = PlayerPedId()
 		playerCoords = GetEntityCoords(playerPed)
-		if doorCount ~= nil and doorCount ~= 0 and closestDistance then
+		if doorCount ~= nil and doorCount ~= 0 and closestDistance and closestV.setText then
 			closestDistance = #(closestV.textCoords - playerCoords)
-			if closestDistance < closestV.maxDistance and closestV.setText then
+			if closestDistance < closestV.maxDistance then
 				doorSleep = 5
 				if not closestV.doors then
 					local doorState = DoorSystemGetDoorState(closestV.doorHash)
