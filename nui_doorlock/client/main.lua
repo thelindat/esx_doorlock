@@ -38,7 +38,17 @@ AddEventHandler('esx_doorlock:setState', function(doorID, locked, src)
 					if not DoesEntityExist(v.object) then return end -- If the entity does not exist, end the loop
 					v.currentHeading = GetEntityHeading(v.object)
 					v.doorState = DoorSystemGetDoorState(v.doorHash)
-					if Config.DoorList[doorID].locked and (v.doorState == 4 or Config.DoorList[doorID].slides) then
+					if Config.DoorList[doorID].slides then
+						if Config.DoorList[doorID].locked then
+							DoorSystemSetDoorState(v.doorHash, 1, false, false) -- Set to locked
+							DoorSystemSetAutomaticDistance(v.doorHash, 0, false, false)
+							if k == 2 then playSound(Config.DoorList[doorID], src) return end -- End the loop
+						else
+							DoorSystemSetDoorState(v.doorHash, 0, false, false) -- Set to unlocked
+							DoorSystemSetAutomaticDistance(v.doorHash, 20, false, false)
+							if k == 2 then playSound(Config.DoorList[doorID], src) return end -- End the loop
+						end
+					elseif Config.DoorList[doorID].locked and (v.doorState == 4) then
 						if Config.DoorList[doorID].oldMethod then FreezeEntityPosition(v.object, true) end
 						DoorSystemSetDoorState(v.doorHash, 1, false, false) -- Set to locked
 						if Config.DoorList[doorID].doors[1].doorState == Config.DoorList[doorID].doors[2].doorState then playSound(Config.DoorList[doorID], src) return end -- End the loop
@@ -46,7 +56,7 @@ AddEventHandler('esx_doorlock:setState', function(doorID, locked, src)
 						if Config.DoorList[doorID].oldMethod then FreezeEntityPosition(v.object, false) end
 						DoorSystemSetDoorState(v.doorHash, 0, false, false) -- Set to unlocked
 						if Config.DoorList[doorID].doors[1].doorState == Config.DoorList[doorID].doors[2].doorState then playSound(Config.DoorList[doorID], src) return end -- End the loop
-					elseif not Config.DoorList[doorID].slides then
+					else
 						if round(v.currentHeading, 0) == round(v.objHeading, 0) then
 							DoorSystemSetDoorState(v.doorHash, 4, false, false) -- Force to close
 						end
@@ -56,7 +66,19 @@ AddEventHandler('esx_doorlock:setState', function(doorID, locked, src)
 				if not DoesEntityExist(Config.DoorList[doorID].object) then return end -- If the entity does not exist, end the loop
 				Config.DoorList[doorID].currentHeading = GetEntityHeading(Config.DoorList[doorID].object)
 				Config.DoorList[doorID].doorState = DoorSystemGetDoorState(Config.DoorList[doorID].doorHash)
-				if Config.DoorList[doorID].locked and (Config.DoorList[doorID].doorState == 4 or Config.DoorList[doorID].slides) then
+				if Config.DoorList[doorID].slides then
+					if Config.DoorList[doorID].locked then
+						DoorSystemSetDoorState(Config.DoorList[doorID].doorHash, 1, false, false) -- Set to locked
+						DoorSystemSetAutomaticDistance(Config.DoorList[doorID].doorHash, 0, false, false)
+						playSound(Config.DoorList[doorID], src)
+						return -- End the loop
+					else
+						DoorSystemSetDoorState(Config.DoorList[doorID].doorHash, 0, false, false) -- Set to unlocked
+						DoorSystemSetAutomaticDistance(Config.DoorList[doorID].doorHash, 20, false, false)
+						playSound(Config.DoorList[doorID], src)
+						return -- End the loop
+					end
+				elseif Config.DoorList[doorID].locked and (Config.DoorList[doorID].doorState == 4) then
 					if Config.DoorList[doorID].oldMethod then FreezeEntityPosition(Config.DoorList[doorID].object, true) end
 					DoorSystemSetDoorState(Config.DoorList[doorID].doorHash, 1, false, false) -- Set to locked
 					playSound(Config.DoorList[doorID], src)
@@ -66,7 +88,7 @@ AddEventHandler('esx_doorlock:setState', function(doorID, locked, src)
 					DoorSystemSetDoorState(Config.DoorList[doorID].doorHash, 0, false, false) -- Set to unlocked
 					playSound(Config.DoorList[doorID], src)
 					return -- End the loop
-				elseif not Config.DoorList[doorID].slides then
+				else
 					if round(Config.DoorList[doorID].currentHeading, 0) == round(Config.DoorList[doorID].objHeading, 0) then
 						DoorSystemSetDoorState(Config.DoorList[doorID].doorHash, 4, false, false) -- Force to close
 					end
@@ -158,8 +180,11 @@ function updateDoors()
 					if v.object then
 						v.doorHash = 'doorlock_'..doorID..'-'..k
 						AddDoorToSystem(v.doorHash, v.objHash, v.objCoords, false, false, false)
-						if data.locked then DoorSystemSetDoorState(v.doorHash, 4, false, false) DoorSystemSetDoorState(v.doorHash, 1, false, false) else
-							DoorSystemSetDoorState(v.doorHash, 0, false, false) if data.oldMethod then FreezeEntityPosition(v.object, false) end end
+						if data.locked then
+							DoorSystemSetDoorState(v.doorHash, 4, false, false) DoorSystemSetDoorState(v.doorHash, 1, false, false)
+						 else
+							DoorSystemSetDoorState(v.doorHash, 0, false, false) if data.oldMethod then FreezeEntityPosition(v.object, false) end
+						end
 					end
 				elseif v.object then RemoveDoorFromSystem(v.doorHash) end
 			end
@@ -176,8 +201,11 @@ function updateDoors()
 				if data.object then
 					data.doorHash = 'doorlock_'..doorID
 					AddDoorToSystem(data.doorHash, data.objHash, data.objCoords, false, false, false) 
-					if data.locked then DoorSystemSetDoorState(data.doorHash, 4, false, false) DoorSystemSetDoorState(data.doorHash, 1, false, false) else
-						DoorSystemSetDoorState(data.doorHash, 0, false, false) if data.oldMethod then FreezeEntityPosition(data.object, false) end end
+					if data.locked then
+						DoorSystemSetDoorState(data.doorHash, 4, false, false) DoorSystemSetDoorState(data.doorHash, 1, false, false)
+					 else
+						DoorSystemSetDoorState(data.doorHash, 0, false, false) if data.oldMethod then FreezeEntityPosition(data.object, false) end
+					end
 				end
 			elseif data.object then RemoveDoorFromSystem(data.doorHash) end
 		end
@@ -192,7 +220,6 @@ function updateDoors()
 					data.setText = true
 				end
 				if k == 2 and data.textCoords and data.slides then
-					DoorSystemSetAutomaticDistance(v.doorHash, (data.maxDistance * 3), false, false)
 					if GetEntityHeightAboveGround(v.object) < 1 then
 						data.textCoords = vector3(data.textCoords.x, data.textCoords.y, data.textCoords.z+1.2)
 					end
@@ -213,13 +240,11 @@ function updateDoors()
 				data.setText = true
 			end
 			if data.slides then
-				DoorSystemSetAutomaticDistance(data.doorHash, (data.maxDistance * 2), false, false)
 				if GetEntityHeightAboveGround(data.object) < 1 then
 					data.textCoords = vector3(data.textCoords.x, data.textCoords.y, data.textCoords.z+1.6)
 				end
 			end
 		end
-	debug(doorID, data)
 	end
 	doorCount = DoorSystemGetSize()
 	if doorCount ~= 0 then print(('%s doors are loaded'):format(doorCount)) end
