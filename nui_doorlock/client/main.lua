@@ -20,7 +20,7 @@ Citizen.CreateThread(function()
 		retrievedData = true
 	end)
 	while not retrievedData do Citizen.Wait(0) end
-	while IsPedStill(PlayerPedId()) do Citizen.Wait(0) end
+	while IsPedStill(PlayerPedId()) and not IsPedInAnyVehicle(PlayerPedId()) do Citizen.Wait(0) end
 	updateDoors()
 	playerNotActive = nil
 	retrievedData = nil
@@ -147,7 +147,7 @@ end
 function dooranim(entity, state)
 	Citizen.CreateThread(function()
     loadAnimDict("anim@heists@keycard@") 
-    TaskPlayAnim(playerPed, "anim@heists@keycard@", "exit", 8.0, 1.0, -1, 16, 0, 0, 0, 0)
+	TaskPlayAnim(playerPed, "anim@heists@keycard@", "exit", 8.0, 1.0, -1, 16, 0, 0, 0, 0)
     Citizen.Wait(550)
 	ClearPedTasks(playerPed)
 	end)
@@ -338,7 +338,23 @@ end
 
 RegisterCommand('doorlock', function()
 	if closestDoor and IsAuthorized(closestV) then
-		if not IsPedInAnyVehicle(playerPed) then dooranim(closestV.object, closestV.locked) end
+		if IsControlPressed(0, 86) or IsControlReleased(0, 86) then key = 'e' end
+		local veh = GetVehiclePedIsIn(playerPed)
+		dooranim(closestV.object, closestV.locked)
+		if veh and key == 'e' then
+			Citizen.CreateThread(function()
+				local counter = 0
+				local siren = IsVehicleSirenOn(veh)
+				repeat
+					DisableControlAction(0, 86, true)
+					SetHornEnabled(veh, false)
+					if not siren then SetVehicleSiren(veh, false) end
+					counter = counter + 1
+					Citizen.Wait(0)
+				until (counter == 100)
+				SetHornEnabled(veh, true)
+			end)
+		end
 		closestV.locked = not closestV.locked
 		--debug(closestDoor, closestV)
 		if closestV.audioRemote then src = NetworkGetNetworkIdFromEntity(playerPed) else src = nil end
