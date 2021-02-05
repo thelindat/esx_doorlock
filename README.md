@@ -31,6 +31,9 @@ When adding new doors to the config, you should delete states.json so a new one 
 
 <hr>
 
+<br><br><br>
+<p align="center">Original</p>
+
 # esx_doorlock
 This is a door lock script for ESX, which is used to lock certain doors that shouldn't be accessable by normal citizens.
 
