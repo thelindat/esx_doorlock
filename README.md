@@ -5,7 +5,7 @@ A fork of esx_doorlock, featuring improved performance and improved functionalit
 * Master represents the original; old is the code I created a fork from. *</p>
 <hr>
 
-* Easily add and configure new doors!
+* Easily add and configure new doors!  
 Use the /newdoor command to automatically create a new entry on the DoorList.
 
 * No more `SetEntityHeading` and `FreezeEntityPosition` natives.  
