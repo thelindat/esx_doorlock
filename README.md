@@ -1,9 +1,12 @@
 # <a href='https://forum.cfx.re/t/esx-nui-doorlock-improved-performance-supports-sliding-doors/2068259'>nui_doorlock</a>
 A fork of esx_doorlock, featuring improved performance and improved functionality.
 <hr>
-<p align="center" style="font-size: 8pt; font-family: 'Tahoma';"><img src="https://i.imgur.com/wulspM9.png"/>
+<p align="center"><img src="https://i.imgur.com/wulspM9.png"/>
 * Master represents the original; old is the code I created a fork from. *</p>
 <hr>
+
+* Easily add and configure new doors!
+Use the /newdoor command to automatically create a new entry on the DoorList.
 
 * No more `SetEntityHeading` and `FreezeEntityPosition` natives.  
  Doors in range are assigned a doorHash, used with `AddDoorToSystem`.  
